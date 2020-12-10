@@ -35,9 +35,7 @@ export default class Splash extends React.Component {
 
 
   initPage = async () => {
-
-    this.props.navigation.navigate('Welcome');
-
+    this.props.navigation.replace('Welcome');
   }
 
 

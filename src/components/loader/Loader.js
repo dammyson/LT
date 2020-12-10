@@ -15,22 +15,18 @@ class Loader extends Component {
     }
 
     render() {
-        const loader = this.props.loader
+        const message = this.props.message
         return (
             <>
-                {
-                    loader.loading ?
                         <View style={styles.container} >
                             <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
                                 <View style={styles.welcome}>
                                     <BallIndicator color={color.primary_color} size={45} />
-                                    <Text style={{ color: color.primary_color, fontFamily: 'Poppins-Light', fontSize: 13, marginBottom: 2, marginTop: 2 }}>{loader.message}</Text>
+                                    <Text style={{ color: color.primary_color, fontFamily: 'Poppins-Light', fontSize: 13, marginBottom: 2, marginTop: 2 }}>{message}</Text>
                                 </View>
 
                             </View>
                         </View>
-                        : null
-                }
             </>
 
         )

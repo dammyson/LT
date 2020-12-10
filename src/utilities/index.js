@@ -1,7 +1,7 @@
 import { AsyncStorage } from 'react-native';
 
 export const baseUrl = () => {
-    return 'https://realhub.herokuapp.com/api/';
+    return 'https://facerecogapi.azurewebsites.net/api/facecog/';
 };
 
 
@@ -36,18 +36,6 @@ export const getUserId = async () => {
 
 export const getPhone = async () => {
   return AsyncStorage.getItem('phone')
-};
-
-export const getCurrency = async () => {
-  return AsyncStorage.getItem('curr')
-};
-
-export const getCountry = async () => {
-  return AsyncStorage.getItem('ctry')
-};
-
-export const getCards = async () => {
-  return AsyncStorage.getItem('cards')
 };
 
 export const getUser = async () => {

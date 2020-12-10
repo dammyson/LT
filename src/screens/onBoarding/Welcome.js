@@ -8,6 +8,7 @@ import {
   StatusBar,
   Image,
   ImageBackground,
+  PermissionsAndroid,
   Animated, 
   Easing
 } from 'react-native';
@@ -37,6 +38,25 @@ export default class Welcome extends React.Component {
     }).start();
   }
 
+  requestMultiplePermission = async () => {
+    try {
+        const granted = await PermissionsAndroid.requestMultiple(
+            [
+                PermissionsAndroid.PERMISSIONS.CAMERA,
+                PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE,
+                PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE
+            ]
+        );
+        this.props.navigation.replace('SignIn')
+        if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+         
+        } else {
+            console.warn("Camera permission denied");
+        }
+    } catch (err) {
+        console.warn(err);
+    }
+};
 
   render() {
     return (
@@ -62,7 +82,7 @@ export default class Welcome extends React.Component {
           }]}>Stay connected with everyone!</Text>
           <Text style={styles.text}>Sign in with account</Text>
           <View style={styles.button}>
-            <TouchableOpacity  onPress={() => this.props.navigation.navigate('SignIn')}>
+            <TouchableOpacity  onPress={() =>  this.requestMultiplePermission()}>
               <LinearGradient
                 colors={['#f1f1f1', '#fff']}
                 style={styles.signIn}

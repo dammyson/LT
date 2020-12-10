@@ -4,41 +4,50 @@ import {
     Text,
     TouchableOpacity,
     TextInput,
-    Platform,
+    ImageBackground,
     StyleSheet,
     StatusBar,
     Alert,
+    Keyboard,
     Dimensions
 } from 'react-native';
 import * as Animatable from 'react-native-animatable';
 import LinearGradient from 'react-native-linear-gradient';
 import { Icon } from 'react-native-elements';
-import LottieView from 'lottie-react-native';
+import { navigation } from '../../../rootNavigation'
 import colors from '../../components/theme/colors'
-import { Container, Content } from 'native-base';
-import Feather from 'react-native-vector-icons/Feather';
-import { useTheme } from 'react-native-paper';
-import { baseUrl, processResponse } from '../../utilities';
-
+import { Container, Content, Button } from 'native-base';
 import Users from './user';
+import Success from '../../components/views/Success';
+import CameraView from '../../components/CameraView';
+import { baseUrl, setToken, setRefresheToken, setIsFirst, setUserId, processResponse } from '../../utilities';
+import Loader from '../../components/loader/Loader';
 
-
-
-export default class SignInScreen extends Component {
+export default class SignUp extends Component {
     constructor(props) {
         super(props);
         this.state = {
             loading: false,
             operation_message: '',
+            fname: '',
+            lname: '',
+            phone: '',
             email: '',
-            password: '',
-            confirm_password: '',
+            image1: '',
+            image1_display: '',
+            image2: '',
+            image2_display: '',
             is_valide_mail: false,
-            secureTextEntry: true,
-            agree: false
+            secureTextEntry: false,
+            show_camera: false,
+            agree: false,
+            done: false, 
+            image_no : 0,
         };
     }
-
+    async componentDidMount() {
+       
+    }
 
     validate = (text) => {
         let reg = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
@@ -48,7 +57,7 @@ export default class SignInScreen extends Component {
         }
         else {
             this.setState({ email: text, is_valide_mail: true })
-            
+
         }
     }
 
@@ -57,35 +66,97 @@ export default class SignInScreen extends Component {
     }
 
     processStepOne() {
-        const { email, password, confirm_password, is_valide_mail, agree } = this.state
-        if (email == "" || password == "" || password.length < 8) {
-            Alert.alert('Validation failed', 'Phone field cannot be empty', [{ text: 'Okay' }])
+        const { email, phone, lname, fname, is_valide_mail, agree, image1, image2 } = this.state
+        if (email == "" || phone == "" || lname == "" || fname == '') {
+            Alert.alert('Validation failed', 'Field cannot be empty', [{ text: 'Okay' }])
+            return
+        }
+        if (image1 == "" || image2 == '') {
+            Alert.alert('Validation failed', 'Please make sure you select test images', [{ text: 'Okay' }])
             return
         }
         if (!is_valide_mail) {
             Alert.alert('Validation failed', 'Email is invalid', [{ text: 'Okay' }])
             return
         }
-        if (confirm_password != password) {
-            Alert.alert('Validation failed', 'Phone field cannot be empty', [{ text: 'Okay' }])
-            return
-        }
         if (!agree) {
             Alert.alert('Validation failed', 'You must accept or termps and conditions', [{ text: 'Okay' }])
             return
         }
-        var payload ={ email: email, password: password, confirm_password: confirm_password }
-        this.props.navigation.navigate('SignUpTwo', payload)
+        var payload = {
+            FirstName: fname,
+            LastName: lname,
+            PhoneNumber: phone,
+            Identity: email,
+            TrainingImage1: image1,
+            TrainingImage2: image2
+
+        }
+        var formData = JSON.stringify(payload);
+
+        this.setState({ loading: true })
+        fetch(baseUrl() + 'registration', {
+            method: 'POST', headers: {
+                'Content-Type': 'application/json',
+                Accept: 'application/json',
+            }, body: formData
+        })
+            .then(processResponse)
+            .then(res => {
+                const { statusCode, data } = res;
+                this.setState({ loading: false })
+                if (statusCode === 200) {
+                    setToken(email)
+                    this.setState({ loading: false, done: true })
+                } else if (statusCode === 500) {
+                    alert(data.message)
+                } else if (statusCode === 400) {
+                  
+                    alert(data.message)
+                } else {
+                    alert(data.message)
+                }
+            })
+            .catch((error) => {
+                this.setState({ loading: false })
+                alert(error.message);
+            });
+       
+    }
+
+    pickSingle(no) {
+        Keyboard.dismiss()
+            if (no == 1) {
+                this.setState({
+                    image_no: 1,
+                    show_camera: true
+                })
+            } else {
+                this.setState({
+                    image_no: 2,
+                    show_camera: true
+                })
+            }
     }
 
 
     render() {
-
+        if (this.state.loading) {
+            return (
+                <Loader  message={'Proccessing Registration...'}/>
+            );
+        }
 
         return (
-            <View style={styles.container}>
+
+            <ImageBackground
+                source={require('../../assets/background_dot.png')}
+                resizeMode="repeat"
+                style={styles.background}
+            >
                 <StatusBar backgroundColor='#fff' barStyle="dark-content" />
                 <Container style={{ backgroundColor: 'transparent' }}>
+                    <StatusBar backgroundColor='#fff' barStyle="dark-content" />
                     <Content>
                         <View style={styles.backgroundImage}>
                             <View style={styles.mainbody}>
@@ -93,7 +164,7 @@ export default class SignInScreen extends Component {
 
 
                                 <View style={styles.sideContent}>
-                                   
+
                                 </View>
 
                                 <View style={{ marginLeft: 20, marginRight: 20, justifyContent: 'center', alignItems: 'center', flexDirection: 'row', marginBottom: 5, }}>
@@ -147,12 +218,13 @@ export default class SignInScreen extends Component {
                                     </View>
                                 </View>
 
+
                                 <View style={styles.textInputContainer}>
                                     <View style={styles.text_icon}>
                                         <Icon
-                                            name="locked"
-                                            size={20}
-                                            type='fontisto'
+                                            name="mobile-phone"
+                                            size={23}
+                                            type='font-awesome'
                                             color={colors.primary_color}
 
                                         />
@@ -160,48 +232,26 @@ export default class SignInScreen extends Component {
 
                                     <View style={styles.input}>
                                         <TextInput
-                                            placeholder="Password "
+                                            placeholder="Phone "
                                             placeholderTextColor={colors.placeholder_color}
                                             returnKeyType="next"
-                                            keyboardType="password"
-                                            secureTextEntry={this.state.secureTextEntry}
+                                            keyboardType='default'
                                             autoCapitalize="none"
                                             autoCorrect={false}
-                                            defaultValue={this.state.password}
-                                            style={{ flex: 1, fontSize: 12, color:colors.primary_color, fontFamily: 'Poppins-SemiBold', }}
-                                            ref={(input) => this.passwordInput = input}
-                                            onChangeText={text => this.setState({ password: text })}
-                                            onSubmitEditing={() => this.cpasswordInput.focus()}
+                                            style={{ flex: 1, fontSize: 12, color: colors.primary_color, fontFamily: 'Poppins-SemiBold', }}
+                                            onChangeText={(text) => this.setState({ phone: text })}
+                                            onSubmitEditing={() => this.fnameInput.focus()}
                                         />
                                     </View>
 
-                                    <View style={styles.operation_icon}>
-                                        <TouchableOpacity
-                                            onPress={() => this.updateSecureTextEntry()}
-                                        >
-                                            {!this.state.secureTextEntry ?
-                                                <Feather
-                                                    name="eye-off"
-                                                    color="grey"
-                                                    size={20}
-                                                />
-                                                :
-                                                <Feather
-                                                    name="eye"
-                                                    color="grey"
-                                                    size={20}
-                                                />
-                                            }
-                                        </TouchableOpacity>
-                                    </View>
                                 </View>
 
                                 <View style={styles.textInputContainer}>
                                     <View style={styles.text_icon}>
                                         <Icon
-                                            name="locked"
+                                            name="user"
                                             size={20}
-                                            type='fontisto'
+                                            type='entypo'
                                             color={colors.primary_color}
 
                                         />
@@ -209,39 +259,95 @@ export default class SignInScreen extends Component {
 
                                     <View style={styles.input}>
                                         <TextInput
-                                            placeholder="Confirm Password "
+                                            placeholder="First Name "
                                             placeholderTextColor={colors.placeholder_color}
                                             returnKeyType="next"
-                                            keyboardType="password"
-                                            secureTextEntry={this.state.secureTextEntry}
+                                            keyboardType='email-address'
                                             autoCapitalize="none"
                                             autoCorrect={false}
-                                            defaultValue={this.state.confirm_password}
                                             style={{ flex: 1, fontSize: 12, color: colors.primary_color, fontFamily: 'Poppins-SemiBold', }}
-                                            ref={(input) => this.cpasswordInput = input}
-                                            onChangeText={text => this.setState({ confirm_password: text })}
-                                            onSubmitEditing={() => this.processStepOne()}
+                                            ref={(input) => this.fnameInput = input}
+                                            onChangeText={(text) => this.setState({ fname: text })}
+                                            onSubmitEditing={() => this.lnameInput.focus()}
+
                                         />
                                     </View>
 
-                                    <View style={styles.operation_icon}>
-                                        <TouchableOpacity
-                                            onPress={() => this.updateSecureTextEntry()}
-                                        >
-                                            {!this.state.secureTextEntry ?
-                                                <Feather
-                                                    name="eye-off"
-                                                    color="grey"
-                                                    size={20}
-                                                />
-                                                :
-                                                <Feather
-                                                    name="eye"
-                                                    color="grey"
-                                                    size={20}
-                                                />
-                                            }
-                                        </TouchableOpacity>
+                                </View>
+
+                                <View style={styles.textInputContainer}>
+                                    <View style={styles.text_icon}>
+                                        <Icon
+                                            name="user"
+                                            size={20}
+                                            type='entypo'
+                                            color={colors.primary_color}
+
+                                        />
+                                    </View>
+
+                                    <View style={styles.input}>
+                                        <TextInput
+                                            placeholder="Last Name "
+                                            placeholderTextColor={colors.placeholder_color}
+                                            returnKeyType="next"
+                                            keyboardType='email-address'
+                                            autoCapitalize="none"
+                                            autoCorrect={false}
+                                            style={{ flex: 1, fontSize: 12, color: colors.primary_color, fontFamily: 'Poppins-SemiBold', }}
+                                            ref={(input) => this.lnameInput = input}
+                                            onChangeText={(text) => this.setState({ lname: text })}
+                                            onSubmitEditing={() => this.SignUpRequest()}
+                                        />
+                                    </View>
+
+                                </View>
+
+                                <View style={{ flexDirection: 'row', marginRight: 30, marginLeft: 30, height: 100, marginTop: 20, marginBottom: 15 }}>
+                                    <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', }}>
+                                        <ImageBackground
+                                            source={{ uri: this.state.image1_display }}
+                                            imageStyle={{ borderRadius: 10, }}
+                                            style={{ backgroundColor: "#FFF", height: 100, width: 100, borderRadius: 10, borderWidth: 1, borderColor:colors.primary_color }}>
+                                            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', }}>
+                                                <TouchableOpacity style={{}} transparent onPress={() => this.pickSingle(1)}>
+                                                    <Icon
+                                                        active
+                                                        name="camera"
+                                                        type='feather'
+                                                        color={colors.primary_color}
+                                                        size={20}
+                                                    />
+                                                    <Text style={{ color: colors.placeholder_color, fontFamily: 'Poppins-SemiBold', fontSize: 10, fontWeight: '400' }}>Image 1  </Text>
+                                                </TouchableOpacity>
+
+                                            </View>
+
+
+                                        </ImageBackground>
+                                    </View>
+                                    <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', }}>
+
+                                        <ImageBackground
+                                            source={{ uri: this.state.image2_display }}
+                                            imageStyle={{ borderRadius: 10, }}
+                                            style={{ backgroundColor: "#FFF", height: 100, width: 100, borderRadius: 10, borderWidth: 1, borderColor:colors.primary_color }}>
+                                            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', }}>
+                                                <TouchableOpacity style={{}} transparent onPress={() => this.pickSingle(2)}>
+                                                    <Icon
+                                                        active
+                                                        name="camera"
+                                                        type='feather'
+                                                        color={colors.primary_color}
+                                                        size={20}
+                                                    />
+                                                    <Text style={{ color: colors.placeholder_color, fontFamily: 'Poppins-SemiBold', fontSize: 10, fontWeight: '400' }}>Image 2 </Text>
+                                                </TouchableOpacity>
+
+                                            </View>
+
+
+                                        </ImageBackground>
                                     </View>
                                 </View>
                                 <View style={[styles.terms_container]}>
@@ -266,7 +372,7 @@ export default class SignInScreen extends Component {
                                     }
                                     <Text style={{ color: colors.secondary_color, fontSize: 12, fontWeight: '200', marginLeft: 5 }}>I have read and accepted the </Text>
                                     <TouchableOpacity onPress={() => this.setState({ show_terms: true })} >
-                                        <Text style={{ color: colors.primary_color, fontFamily: 'Poppins-SemiBold',  fontSize: 12, fontWeight: '400' }}>Terms & Conditions  </Text>
+                                        <Text style={{ color: colors.primary_color, fontFamily: 'Poppins-SemiBold', fontSize: 12, fontWeight: '400' }}>Terms & Conditions  </Text>
                                     </TouchableOpacity>
                                 </View>
                                 <LinearGradient start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} colors={[colors.primary_color, colors.primary_color]} style={styles.buttonContainer} block iconLeft>
@@ -277,7 +383,7 @@ export default class SignInScreen extends Component {
 
                                 <View style={{ marginLeft: 20, marginRight: 20, justifyContent: 'center', alignItems: 'center', flexDirection: 'row', marginBottom: 10, }}>
                                     <View style={{ alignItems: 'center' }}>
-                                        <Text style={{ color:colors.secondary_color, fontFamily: 'Poppins-Medium', fontSize: 12, marginBottom: 7, marginTop: 7 }}>Already a member?</Text>
+                                        <Text style={{ color: colors.secondary_color, fontFamily: 'Poppins-Medium', fontSize: 12, marginBottom: 7, marginTop: 7 }}>Already a member?</Text>
                                     </View>
                                     <TouchableOpacity onPress={() => this.props.navigation.navigate('SignIn')} style={{ alignItems: 'center' }}>
                                         <Text style={{ color: colors.primary_color, fontFamily: 'Poppins-Bold', fontSize: 13, marginBottom: 7, marginTop: 7 }}>  Sign In!</Text>
@@ -287,16 +393,55 @@ export default class SignInScreen extends Component {
 
                             </View>
                         </View>
-
-
                     </Content>
+                    {this.state.done ? this.success() : null}
+                    {this.state.show_camera ? this.renderCameral() : null}
                 </Container>
+            </ImageBackground>
 
-            </View>
         );
     };
 
+    success() {
+        return (
+            <Success
+            onPress={() => navigation.goBack()}
+                message={'Registration Was successful'}
+            />
+
+        );
+    }
+
+    renderCameral() {
+        return (
+            <CameraView
+                onCapture={(ref) => this.onCapture(ref)}
+                onClose={() => this.setState({ show_camera: false })}
+
+            />
+
+        );
+    }
+    onCapture(ref) {
+        this.setState({ show_camera: false })
+        let proper_img = 'data:image/jpg;base64,' + ref
+        const { image_no } = this.state
+        if (image_no == 1) {
+            this.setState({
+                image1:ref,
+                image1_display: proper_img
+            })
+        } else {
+            this.setState({
+                image2: ref,
+                image2_display: proper_img
+            })
+        }
+    }
+
 }
+
+
 
 
 
@@ -305,9 +450,17 @@ const styles = StyleSheet.create({
         flex: 1,
         backgroundColor: '#FFF'
     },
+    background: {
+        flex: 1,
+        width: '100%',
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: '#fff'
+    },
     backgroundImage: {
         width: Dimensions.get('window').width,
-        height: Dimensions.get('window').height,
+        paddingTop: 40,
+        paddingBottom: 40,
     },
     mainbody: {
         width: Dimensions.get('window').width,
@@ -318,13 +471,14 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         marginRight: 30,
         marginLeft: 30,
-        height: 40,
+        height: 45,
         borderColor: '#3E3E3E',
         marginBottom: 15,
         marginTop: 20,
         paddingLeft: 12,
-        borderBottomWidth: 0.6,
-        borderBottomColor: colors.primary_color,
+        borderWidth: 0.6,
+        borderColor: colors.primary_color,
+        borderRadius: 10
     },
     input: {
         flex: 1,

@@ -3,32 +3,29 @@ import { SHOW_LOADER, HIDE_LOADER } from './loaderAction'
 import { baseUrl, setToken, setRefresheToken, setIsFirst, setUserId, processResponse } from '../utilities';
 import axios from 'axios'
 
-export const LoginRequest = (email, password) => {
+export const LoginRequest = (details) => {
+    console.warn( JSON.parse(details).Identity)
     return (dispatch) => {
-        dispatch(SHOW_LOADER('Login in..'))
-        fetch(baseUrl() + 'auth', {
+        dispatch(SHOW_LOADER('Verifying in..'))
+        fetch(baseUrl() + 'verifyface', {
             method: 'POST', headers: {
                 'Content-Type': 'application/json',
                 Accept: 'application/json',
-            }, body: JSON.stringify({
-                email: email,
-                password: password,
-                rememberMe: true,
-            }),
+            }, body: details
         })
             .then(processResponse)
             .then(res => {
                 const { statusCode, data } = res;
                 if (statusCode === 200) {
-                    setToken(data.access_token)
-                    setRefresheToken(data.refresh_token)
-                    setIsFirst('yes')
-                    setUserId(data.id)
+                    setToken(JSON.parse(details).Identity)
                     dispatch(LoginSuccess(data))
                     dispatch(HIDE_LOADER())
-                } else if (statusCode === 422) {
+                } else if (statusCode === 500) {
                     dispatch(HIDE_LOADER())
-                    dispatch(LoginFailure(data.message))
+                    dispatch(LoginFailure('No match was found for this user'))
+                } else if (statusCode === 400) {
+                    dispatch(HIDE_LOADER())
+                    dispatch(LoginFailure('No match was found for this user'))
                 } else {
                     dispatch(HIDE_LOADER())
                     dispatch(LoginFailure(data.message))
@@ -36,7 +33,7 @@ export const LoginRequest = (email, password) => {
             })
             .catch((error) => {
                 dispatch(HIDE_LOADER())
-                dispatch(ForgetPasswordFailure('No Internet Connection. Please Check your network'))
+                dispatch(GetUserFailure('No Internet Connection. Please Check your network'))
             });
 
     }
@@ -62,8 +59,7 @@ export const LoginSuccess = (user) => {
 export const RegisterRequest = (details) => {
     return (dispatch) => {
         dispatch(SHOW_LOADER('Creating...'))
-
-        fetch(baseUrl() + 'users', {
+        fetch(baseUrl() + 'registration', {
             method: 'POST', headers: {
                 'Content-Type': 'application/json',
                 Accept: 'application/json',
@@ -73,7 +69,7 @@ export const RegisterRequest = (details) => {
             .then(res => {
                 const { statusCode, data } = res;
                 if (statusCode === 200) {
-                    setUserId(data.id)
+                    setToken(JSON.parse(details).Identity)
                     dispatch(RegisterSuccess(data))
                     dispatch(HIDE_LOADER())
                 } else if (statusCode === 422) {
@@ -86,7 +82,7 @@ export const RegisterRequest = (details) => {
             })
             .catch((error) => {
                 dispatch(HIDE_LOADER())
-                dispatch(ForgetPasswordFailure('No Internet Connection. Please Check your network'))
+                dispatch(GetUserFailure('No Internet Connection. Please Check your network'))
             });
 
 
@@ -112,40 +108,39 @@ export const RegisterSuccess = (user) => {
 }
 
 
-export const ForgetPasswordRequest = (email, token) => {
+export const GetUserRequest = (details) => {
     return (dispatch) => {
         dispatch(SHOW_LOADER('Processing...'))
-        console.warn(baseUrl() + 'auth/SendForgotPasswordToken')
-        fetch(baseUrl() + 'auth/SendForgotPasswordToken', {
+        fetch(baseUrl() + 'GetUser', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
                 Accept: 'application/json',
-                'Authorization': 'Bearer ' + token,
-            }, body: JSON.stringify({
-                clientBaseUrl: baseUrl(),
-                email: email,
-            }),
+            }, body: details,
         })
             .then(processResponse)
             .then(res => {
                 const { statusCode, data } = res;
                 console.warn(data)
+                dispatch(GetUserSuccess(data))
                 if (statusCode === 200) {
-                    dispatch(ForgetPasswordSuccess(data))
+                    dispatch(GetUserSuccess(data))
                     dispatch(HIDE_LOADER())
-                } else if (statusCode === 422) {
+                } else if (statusCode === 400) {
                     dispatch(HIDE_LOADER())
-                    dispatch(ForgetPasswordFailure(data.message))
+                    dispatch(GetUserFailure(data.message))
+                }else if (statusCode === 500) {
+                    dispatch(HIDE_LOADER())
+                    dispatch(GetUserFailure(data.message))
                 } else {
                     dispatch(HIDE_LOADER())
-                    dispatch(ForgetPasswordFailure(data.message))
+                    dispatch(GetUserSuccess(data))
                 }
             })
             .catch((error) => {
                 dispatch(HIDE_LOADER())
                 console.warn(error)
-                dispatch(ForgetPasswordFailure('No Internet Connection. Please Check your network'))
+                dispatch(GetUserFailure('No Internet Connection. Please Check your network'))
             });
 
     }
@@ -153,73 +148,19 @@ export const ForgetPasswordRequest = (email, token) => {
 
 const FetchFGDefaultState = () => {
     return {
-        type: userActions.FORGET_PASSWORD_REQUEST,
+        type: userActions.GET_USER_REQUEST,
     }
 }
-export const ForgetPasswordFailure = (error) => {
+export const GetUserFailure = (error) => {
     return {
-        type: userActions.FORGET_PASSWORD_FAILURE,
+        type: userActions.GET_USER_FAILURE,
         error
     }
 }
-export const ForgetPasswordSuccess = (user) => {
+export const GetUserSuccess = (user) => {
     return {
-        type: userActions.FORGET_PASSWORD_SUCCESS,
+        type: userActions.GET_USER_SUCCESS,
         payload: user
     }
 }
 
-
-export const ChangePasswordRequest = (details, token) => {
-    return (dispatch) => {
-        dispatch(SHOW_LOADER('Processing...'))
-        console.warn(baseUrl() + 'auth/ResetPassword')
-        fetch(baseUrl() + 'auth/ResetPassword', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                Accept: 'application/json',
-                'Authorization': 'Bearer ' + token,
-            }, body: details,
-        })
-            .then(processResponse)
-            .then(res => {
-                const { statusCode, data } = res;
-                console.warn(data)
-                if (statusCode === 200) {
-                    dispatch(ForgetPasswordSuccess(data))
-                    dispatch(HIDE_LOADER())
-                } else if (statusCode === 422) {
-                    dispatch(HIDE_LOADER())
-                    dispatch(ForgetPasswordFailure(data.message))
-                } else {
-                    dispatch(HIDE_LOADER())
-                    dispatch(ForgetPasswordFailure(data.message))
-                }
-            })
-            .catch((error) => {
-                dispatch(HIDE_LOADER())
-                console.warn(error)
-                dispatch(ForgetPasswordFailure('No Internet Connection. Please Check your network'))
-            });
-
-    }
-}
-
-const FetchCPDefaultState = () => {
-    return {
-        type: userActions.CHANGE_PASSWORD_REQUEST,
-    }
-}
-export const ChangePasswordFailure = (error) => {
-    return {
-        type: userActions.CHANGE_PASSWORD_FAILURE,
-        error
-    }
-}
-export const ChangePasswordSuccess = (user) => {
-    return {
-        type: userActions.CHANGE_PASSWORD_SUCCESS,
-        payload: user
-    }
-}
