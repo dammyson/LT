@@ -150,6 +150,10 @@ export default class SignInScreen extends Component {
                 alert(error.message);
             });
     }
+
+
+
+
     render() {
         const { user } = this.props
         if (this.state.loading) {
@@ -157,6 +161,7 @@ export default class SignInScreen extends Component {
                 <Loader message={'Verifying...'} />
             );
         }
+        
         return (
             <ImageBackground
                 source={require('../../assets/background_dot.png')}
@@ -278,7 +283,7 @@ export default class SignInScreen extends Component {
                 </Container>
             </ImageBackground>
         );
-    };
+    }
 
     success() {
         return (
