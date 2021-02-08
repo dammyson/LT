@@ -88,7 +88,7 @@ export default class SignPassword extends Component {
     render() {
         if (this.state.loading) {
             return (
-                <Loader message={'Proccessing Registration...'} />
+                <Loader message={'Proccessing verification...'} />
             );
         }
 
@@ -107,7 +107,6 @@ export default class SignPassword extends Component {
                                 </View>
 
                                 <View style={{ marginLeft: 20, marginRight: 20, justifyContent: 'center', alignItems: 'center', marginBottom: 5, }}>
-
                                     <Text style={{ color: colors.primary_color, fontFamily: 'Poppins-Bold', fontSize: 16, marginBottom: 2, marginTop: 2 }}> Complete Sign UP</Text>
                                     <Text style={{ color: colors.primary_color, fontFamily: 'Poppins-Light', fontSize: 12, marginBottom: 2, marginTop: 2 }}> Check your email and get the token</Text>
                                 </View>

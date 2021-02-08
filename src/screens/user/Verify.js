@@ -37,6 +37,7 @@ export default class Verify extends Component {
 
     async componentDidMount() {
         this.setState({ token: await getToken() })
+        console.warn(await getToken())
     }
 
     async verifyRequest(image1) {

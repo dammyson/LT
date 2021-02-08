@@ -331,5 +331,8 @@ const styles = StyleSheet.create({
         marginLeft: 30,
         marginTop: 13,
         borderRadius: 15,
+        backgroundColor:colors.primary_color,
+        alignItems: 'center',
+        justifyContent: 'center',
     },
 });
