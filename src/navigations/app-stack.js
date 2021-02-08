@@ -7,8 +7,9 @@ import SignUP from '../screens/user/SignUp';
 import SignIn from '../screens/user/SignIn';
 import Welcome from '../screens/onBoarding/Welcome';
 import { navigationRef } from '../../rootNavigation'
-import SignUpTwo from '../screens/user/SignUpTwo';
 import Home from '../screens/user/Home';
+import Verify from '../screens/user/Verify';
+import SignPassword from '../screens/user/SignPassword';
 
 
 //console.disableYellowBox = true;
@@ -35,7 +36,8 @@ class AppStack extends Component {
             <Stack.Screen name="SignIn" component={SignIn}  />
             <Stack.Screen name="SignUP" component={SignUP}  />
             <Stack.Screen name="Home" component={Home}  />
-            <Stack.Screen name="SignTwo" component={SignUpTwo}  />
+            <Stack.Screen name="SignPassword" component={SignPassword}  />
+            <Stack.Screen name="Verify" component={Verify}  />
           
           </Stack.Navigator>
         </NavigationContainer>

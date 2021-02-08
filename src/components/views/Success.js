@@ -47,7 +47,7 @@ export default class Success extends React.Component {
 
                 <View style={{ flex: 1, backgroundColor: '#fff', justifyContent: 'center', borderRadius: 15 }}>
                     <View style={{ alignItems: 'center' }}>
-                        <Text style={{ color: '#3AA34E', fontSize: 19, fontWeight: '500' }}> {message} </Text>
+                        <Text style={{ color: '#3AA34E', fontSize: 14, fontWeight: '500' }}> {message} </Text>
                     </View>
                     <LinearGradient start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} colors={['#4b47b7', '#0f0e43']} style={styles.buttonContainer} block iconLeft>
                         <TouchableOpacity style={{ flex: 1, justifyContent: 'center', alignItems: 'center', }} onPress={onPress}>

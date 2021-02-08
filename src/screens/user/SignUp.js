@@ -66,8 +66,10 @@ export default class SignUp extends Component {
     }
 
     processStepOne() {
-        const { email, phone, lname, fname, is_valide_mail, agree, image1, image2 } = this.state
-        if (email == "" || phone == "" || lname == "" || fname == '') {
+        const { email, phone, lname, fname, is_valide_mail, agree, password, image1, image2 } = this.state
+
+        console.warn( email, phone, lname, fname, is_valide_mail, agree, password, image1, image2);
+        if (email == "" || phone == "" || lname == "" || fname == ''|| password == '') {
             Alert.alert('Validation failed', 'Field cannot be empty', [{ text: 'Okay' }])
             return
         }
@@ -84,10 +86,13 @@ export default class SignUp extends Component {
             return
         }
         var payload = {
-            FirstName: fname,
-            LastName: lname,
+            firstName: fname,
+            fastName: lname,
+            email: email,
+            password: password,
             PhoneNumber: phone,
             Identity: email,
+            confirmPassword: password,
             TrainingImage1: image1,
             TrainingImage2: image2
 
@@ -95,7 +100,7 @@ export default class SignUp extends Component {
         var formData = JSON.stringify(payload);
 
         this.setState({ loading: true })
-        fetch(baseUrl() + 'registration', {
+        fetch(baseUrl() + 'api/facecog/registration', {
             method: 'POST', headers: {
                 'Content-Type': 'application/json',
                 Accept: 'application/json',
@@ -104,14 +109,16 @@ export default class SignUp extends Component {
             .then(processResponse)
             .then(res => {
                 const { statusCode, data } = res;
+                console.warn(statusCode, data );
                 this.setState({ loading: false })
                 if (statusCode === 200) {
                     setToken(email)
-                    this.setState({ loading: false, done: true })
+                    this.setState({ loading: false,})
+                    this.props.navigation.replace('SignPassword')
                 } else if (statusCode === 500) {
                     alert(data.message)
                 } else if (statusCode === 400) {
-                  
+
                     alert(data.message)
                 } else {
                     alert(data.message)
@@ -121,7 +128,7 @@ export default class SignUp extends Component {
                 this.setState({ loading: false })
                 alert(error.message);
             });
-       
+
     }
 
     pickSingle(no) {
@@ -170,80 +177,6 @@ export default class SignUp extends Component {
                                 <View style={{ marginLeft: 20, marginRight: 20, justifyContent: 'center', alignItems: 'center', flexDirection: 'row', marginBottom: 5, }}>
 
                                     <Text style={{ color: colors.primary_color, fontFamily: 'Poppins-Bold', fontSize: 16, marginBottom: 2, marginTop: 2 }}>  Sign UP</Text>
-                                </View>
-
-                                <View style={styles.textInputContainer}>
-                                    <View style={styles.text_icon}>
-                                        <Icon
-                                            name="email"
-                                            size={20}
-                                            type='entypo'
-                                            color={colors.primary_color}
-
-                                        />
-                                    </View>
-
-                                    <View style={styles.input}>
-                                        <TextInput
-                                            placeholder="Email "
-                                            placeholderTextColor={colors.placeholder_color}
-                                            returnKeyType="next"
-                                            keyboardType='email-address'
-                                            autoCapitalize="none"
-                                            autoCorrect={false}
-                                            defaultValue={this.state.email}
-                                            style={{ flex: 1, fontSize: 12, color: colors.primary_color, fontFamily: 'Poppins-SemiBold', }}
-                                            onChangeText={(text) => this.validate(text)}
-                                            onSubmitEditing={() => this.passwordInput.focus()}
-                                        />
-                                    </View>
-
-
-                                    <View style={styles.operation_icon}>
-                                        {this.state.is_valide_mail ?
-                                            <Animatable.View
-                                                animation="bounceIn"
-                                            >
-                                                <Icon
-                                                    name="check-circle"
-                                                    color="green"
-                                                    size={20}
-                                                    type='feather'
-
-
-                                                />
-                                            </Animatable.View>
-                                            : null}
-
-                                    </View>
-                                </View>
-
-
-                                <View style={styles.textInputContainer}>
-                                    <View style={styles.text_icon}>
-                                        <Icon
-                                            name="mobile-phone"
-                                            size={23}
-                                            type='font-awesome'
-                                            color={colors.primary_color}
-
-                                        />
-                                    </View>
-
-                                    <View style={styles.input}>
-                                        <TextInput
-                                            placeholder="Phone "
-                                            placeholderTextColor={colors.placeholder_color}
-                                            returnKeyType="next"
-                                            keyboardType='default'
-                                            autoCapitalize="none"
-                                            autoCorrect={false}
-                                            style={{ flex: 1, fontSize: 12, color: colors.primary_color, fontFamily: 'Poppins-SemiBold', }}
-                                            onChangeText={(text) => this.setState({ phone: text })}
-                                            onSubmitEditing={() => this.fnameInput.focus()}
-                                        />
-                                    </View>
-
                                 </View>
 
                                 <View style={styles.textInputContainer}>
@@ -303,12 +236,117 @@ export default class SignUp extends Component {
 
                                 </View>
 
-                                <View style={{ flexDirection: 'row', marginRight: 30, marginLeft: 30, height: 100, marginTop: 20, marginBottom: 15 }}>
+                                
+
+                                <View style={styles.textInputContainer}>
+                                    <View style={styles.text_icon}>
+                                        <Icon
+                                            name="email"
+                                            size={20}
+                                            type='entypo'
+                                            color={colors.primary_color}
+
+                                        />
+                                    </View>
+
+                                    <View style={styles.input}>
+                                        <TextInput
+                                            placeholder="Email "
+                                            placeholderTextColor={colors.placeholder_color}
+                                            returnKeyType="next"
+                                            keyboardType='email-address'
+                                            autoCapitalize="none"
+                                            autoCorrect={false}
+                                            defaultValue={this.state.email}
+                                            style={{ flex: 1, fontSize: 12, color: colors.primary_color, fontFamily: 'Poppins-SemiBold', }}
+                                            onChangeText={(text) => this.validate(text)}
+                            
+                                        />
+                                    </View>
+
+
+                                    <View style={styles.operation_icon}>
+                                        {this.state.is_valide_mail ?
+                                            <Animatable.View
+                                                animation="bounceIn"
+                                            >
+                                                <Icon
+                                                    name="check-circle"
+                                                    color="green"
+                                                    size={20}
+                                                    type='feather'
+
+
+                                                />
+                                            </Animatable.View>
+                                            : null}
+
+                                    </View>
+                                </View>
+
+
+                                <View style={styles.textInputContainer}>
+                                    <View style={styles.text_icon}>
+                                        <Icon
+                                            name="mobile-phone"
+                                            size={23}
+                                            type='font-awesome'
+                                            color={colors.primary_color}
+
+                                        />
+                                    </View>
+
+                                    <View style={styles.input}>
+                                        <TextInput
+                                            placeholder="Phone "
+                                            placeholderTextColor={colors.placeholder_color}
+                                            returnKeyType="next"
+                                            keyboardType='default'
+                                            autoCapitalize="none"
+                                            autoCorrect={false}
+                                            style={{ flex: 1, fontSize: 12, color: colors.primary_color, fontFamily: 'Poppins-SemiBold', }}
+                                            onChangeText={(text) => this.setState({ phone: text })}
+                                           
+                                        />
+                                    </View>
+
+                                </View>
+
+
+
+                                <View style={styles.textInputContainer}>
+                                    <View style={styles.text_icon}>
+                                        <Icon
+                                            name="key"
+                                            size={23}
+                                            type='font-awesome'
+                                            color={colors.primary_color}
+
+                                        />
+                                    </View>
+
+                                    <View style={styles.input}>
+                                        <TextInput
+                                            placeholder="Password "
+                                            placeholderTextColor={colors.placeholder_color}
+                                            returnKeyType="next"
+                                            keyboardType='default'
+                                            autoCapitalize="none"
+                                            autoCorrect={false}
+                                            style={{ flex: 1, fontSize: 12, color: colors.primary_color, fontFamily: 'Poppins-SemiBold', }}
+                                            onChangeText={(text) => this.setState({password: text})}
+                                           
+                                        />
+                                    </View>
+
+                                </View>
+
+                             <View style={{ flexDirection: 'row', marginRight: 30, marginLeft: 30, height: 80, marginTop: 10, marginBottom: 15 }}>
                                     <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', }}>
                                         <ImageBackground
                                             source={{ uri: this.state.image1_display }}
                                             imageStyle={{ borderRadius: 10, }}
-                                            style={{ backgroundColor: "#FFF", height: 100, width: 100, borderRadius: 10, borderWidth: 1, borderColor:colors.primary_color }}>
+                                            style={{ backgroundColor: "#FFF", height: 80, width: 80, borderRadius: 10, borderWidth: 1, borderColor:colors.primary_color }}>
                                             <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', }}>
                                                 <TouchableOpacity style={{}} transparent onPress={() => this.pickSingle(1)}>
                                                     <Icon
@@ -331,7 +369,7 @@ export default class SignUp extends Component {
                                         <ImageBackground
                                             source={{ uri: this.state.image2_display }}
                                             imageStyle={{ borderRadius: 10, }}
-                                            style={{ backgroundColor: "#FFF", height: 100, width: 100, borderRadius: 10, borderWidth: 1, borderColor:colors.primary_color }}>
+                                            style={{ backgroundColor: "#FFF", height: 80, width: 80, borderRadius: 10, borderWidth: 1, borderColor:colors.primary_color }}>
                                             <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', }}>
                                                 <TouchableOpacity style={{}} transparent onPress={() => this.pickSingle(2)}>
                                                     <Icon
@@ -474,7 +512,7 @@ const styles = StyleSheet.create({
         height: 45,
         borderColor: '#3E3E3E',
         marginBottom: 15,
-        marginTop: 20,
+        marginTop: 10,
         paddingLeft: 12,
         borderWidth: 0.6,
         borderColor: colors.primary_color,

@@ -25,7 +25,7 @@ import { connect } from 'react-redux'
 import Success from '../../components/views/Success';
 import CameraView from '../../components/CameraView';
 import Loader from '../../components/loader/Loader';
-import { baseUrl, setToken, setRefresheToken, setIsFirst, setUserId, processResponse } from '../../utilities';
+import { baseUrl, setEmail, setToken, setIsFirst, setUserId, processResponse } from '../../utilities';
 
 export default class SignInScreen extends Component {
     constructor(props) {
@@ -33,6 +33,7 @@ export default class SignInScreen extends Component {
         this.state = {
             loading: false,
             email: '',
+            password: '',
             image1: '',
             image1_display: '',
             is_valide_mail: false,
@@ -45,45 +46,6 @@ export default class SignInScreen extends Component {
 
     }
 
-    async VeryRequest() {
-
-        const { email } = this.state
-        var payload = {
-            Identity: email
-        }
-        console.warn(payload)
-
-        var formData = JSON.stringify(payload);
-        this.setState({ loading: true })
-        fetch(baseUrl() + 'GetUser', {
-            method: 'POST', headers: {
-                'Content-Type': 'application/json',
-                Accept: 'application/json',
-            }, body: formData
-        })
-            .then(processResponse)
-            .then(res => {
-                const { statusCode, data } = res;
-                console.warn(statusCode, data)
-                this.setState({ loading: false })
-                if (statusCode === 200) {
-                    this.loginRequest()
-                } else if (statusCode === 500) {
-                    alert(data.message)
-                }
-                else if (statusCode === 400) {
-                    this.setState({ done: true })
-                } else if (statusCode === 404) {
-                    alert(data.message)
-                } else {
-                    alert(data.message)
-                }
-            })
-            .catch((error) => {
-                this.setState({ loading: false })
-                alert(error.message);
-            });
-    }
 
 
     validate = (text) => {
@@ -102,13 +64,10 @@ export default class SignInScreen extends Component {
     }
 
     async loginRequest() {
-        const { email, image1, is_valide_mail } = this.state
-        if (email == "") {
+        const { email, password, is_valide_mail } = this.state
+
+        if (email == "" || password == "") {
             Alert.alert('Validation failed', 'Email field cannot be empty', [{ text: 'Okay' }])
-            return
-        }
-        if (image1 == "") {
-            Alert.alert('Validation failed', 'Please make sure you select test images', [{ text: 'Okay' }])
             return
         }
         if (!is_valide_mail) {
@@ -116,14 +75,15 @@ export default class SignInScreen extends Component {
             return
         }
         var payload = {
-            Identity: email,
-            image: image1,
+            email: email,
+            password: password,
 
         }
         var formData = JSON.stringify(payload);
 
         this.setState({ loading: true })
-        fetch(baseUrl() + 'verifyface', {
+
+        fetch(baseUrl() + 'accounts/authenticate', {
             method: 'POST', headers: {
                 'Content-Type': 'application/json',
                 Accept: 'application/json',
@@ -135,7 +95,8 @@ export default class SignInScreen extends Component {
                 console.warn(statusCode, data)
                 this.setState({ loading: false })
                 if (statusCode === 200) {
-                    setToken(email)
+                    setEmail(email)
+                    setToken(data.jwtToken)
                     this.setState({ loading: false, done: true })
                 } else if (statusCode === 500) {
                     alert(data.message)
@@ -227,42 +188,42 @@ export default class SignInScreen extends Component {
                                     </View>
                                 </View>
 
-                                <View style={{ flexDirection: 'row', marginRight: 30, marginLeft: 30, height: 100, marginTop: 20, marginBottom: 15 }}>
-                                    <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', }}>
-                                        <ImageBackground
-                                            source={{ uri: this.state.image1_display }}
-                                            imageStyle={{ borderRadius: 10, }}
-                                            style={{ backgroundColor: "#FFF", height: 100, width: 100, borderRadius: 10, borderWidth: 1, borderColor: colors.primary_color }}>
-                                            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', }}>
-                                                <TouchableOpacity style={{}} transparent onPress={() => this.setState({ show_camera: true })}>
-                                                    <Icon
-                                                        active
-                                                        name="camera"
-                                                        type='feather'
-                                                        color={colors.primary_color}
-                                                        size={20}
-                                                    />
-                                                    <Text style={{ color: colors.placeholder_color, fontFamily: 'Poppins-SemiBold', fontSize: 10, fontWeight: '400' }}>Image 1  </Text>
-                                                </TouchableOpacity>
+                                <View style={styles.textInputContainer}>
+                                    <View style={styles.text_icon}>
+                                        <Icon
+                                            name="lock"
+                                            size={20}
+                                            type='entypo'
+                                            color={colors.primary_color}
 
-                                            </View>
-                                        </ImageBackground>
+                                        />
                                     </View>
-                                </View>
-                                {/**
 
-                                <View style={{ marginLeft: 20, marginRight: 20, flexDirection: 'row', marginBottom: 1, }}>
-                                    <TouchableOpacity onPress={() => this.props.navigation.navigate('ForgetPassword')} style={{ flex: 1, alignItems: 'center' }}>
-                                        <Text style={{ color: '#193a4d', fontFamily: 'Poppins-Medium', fontSize: 12, marginBottom: 7, marginTop: 7 }}>Can't log in?</Text>
-                                    </TouchableOpacity>
+                                    <View style={styles.input}>
+                                        <TextInput
+                                            placeholder="password "
+                                            secureTextEntry
+                                            placeholderTextColor={colors.placeholder_color}
+                                            returnKeyType="next"
+                                            keyboardType='password'
+                                            autoCapitalize="none"
+                                            autoCorrect={false}
+                                            style={{ flex: 1, fontSize: 12, color: colors.primary_color, fontFamily: 'Poppins-SemiBold', }}
+                                            onChangeText={(text) => this.setState({ password: text })}
+                                            onSubmitEditing={() => this.loginRequest()}
+                                        />
+                                    </View>
+
+
+                                  
                                 </View>
-                                 * 
- */}
-                                <LinearGradient start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} colors={[colors.primary_color, colors.primary_color,]} style={styles.buttonContainer} block iconLeft>
-                                    <TouchableOpacity style={{ flex: 1, justifyContent: 'center', alignItems: 'center', }} onPress={() => this.loginRequest()} >
+
+                               
+                               
+                                    <TouchableOpacity style={styles.buttonContainer}  onPress={() => this.loginRequest()} >
                                         <Text style={{ fontFamily: 'Poppins-SemiBold', color: '#fff', fontSize: 14 }}>Log in</Text>
                                     </TouchableOpacity>
-                                </LinearGradient>
+                             
 
                                 <View style={{ marginLeft: 20, marginRight: 20, justifyContent: 'center', alignItems: 'center', flexDirection: 'row', marginTop: 20, marginBottom: 10, }}>
                                     <View style={{ alignItems: 'center' }}>
@@ -272,14 +233,11 @@ export default class SignInScreen extends Component {
                                         <Text style={{ color: colors.primary_color, fontFamily: 'Poppins-Bold', fontSize: 13, marginBottom: 7, marginTop: 7 }}>  Join Now!</Text>
                                     </TouchableOpacity>
                                 </View>
-
-
                             </View>
                         </View>
 
                     </Content>
                     {this.state.done ? this.success() : null}
-                    {this.state.show_camera ? this.renderCameral() : null}
                 </Container>
             </ImageBackground>
         );
@@ -288,31 +246,11 @@ export default class SignInScreen extends Component {
     success() {
         return (
             <Success
-                onPress={() => navigation.replace('Home')}
-                message={'User found and verified'}
+                onPress={() => this.props.navigation.replace('Verify')}
+                message={'User found Proceed to verify'}
             />
 
         );
-    }
-
-    renderCameral() {
-        Keyboard.dismiss()
-        return (
-            <CameraView
-                onCapture={(ref) => this.onCapture(ref)}
-                onClose={() => this.setState({ show_camera: false })}
-
-            />
-
-        );
-    }
-    onCapture(ref) {
-        this.setState({ show_camera: false })
-        let proper_img = 'data:image/jpg;base64,' + ref
-        this.setState({
-            image1: ref,
-            image1_display: proper_img
-        })
     }
 
 }
