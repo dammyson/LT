@@ -106,12 +106,6 @@ export default class Verify extends Component {
                             <View style={styles.mainbody}>
                                 <View style={styles.sideContent}>
                                 </View>
-
-
-
-
-
-
                                 <View style={{ flexDirection: 'row', marginRight: 30, marginLeft: 30, height: 100, marginTop: 20, }}>
                                     <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', }}>
                                         <ImageBackground
@@ -137,12 +131,6 @@ export default class Verify extends Component {
                                 <View style={{ marginLeft: 20, marginRight: 20, justifyContent: 'center', alignItems: 'center', flexDirection: 'row', marginBottom: 5, }}>
                                     <Text style={{ color: colors.primary_color, fontFamily: 'Poppins-Light', fontSize: 16, marginBottom: 2, }}>Try again</Text>
                                 </View>
-
-
-
-
-
-
                             </View>
                         </View>
 
