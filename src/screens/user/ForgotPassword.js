@@ -19,7 +19,7 @@ import * as Animatable from 'react-native-animatable';
 import LinearGradient from 'react-native-linear-gradient';
 import { Icon } from 'react-native-elements';
 import colors from '../../components/theme/colors'
-import { Container, Content } from 'native-base';
+import { Container, Content, Toast } from 'native-base';
 import { navigation } from '../../../rootNavigation'
 import { connect } from 'react-redux'
 import Success from '../../components/views/Success';
@@ -27,7 +27,7 @@ import CameraView from '../../components/CameraView';
 import Loader from '../../components/loader/Loader';
 import { baseUrl, setEmail, setToken, setIsFirst, setUserId, processResponse } from '../../utilities';
 
-export default class SignInScreen extends Component {
+export default class ForgotPassword extends Component {
     constructor(props) {
         super(props);
         this.state = {
@@ -64,9 +64,9 @@ export default class SignInScreen extends Component {
     }
 
     async loginRequest() {
-        const { email, password, is_valide_mail } = this.state
+        const { email,  is_valide_mail } = this.state
 
-        if (email == "" || password == "") {
+        if (email == "") {
             Alert.alert('Validation failed', 'Email field cannot be empty', [{ text: 'Okay' }])
             return
         }
@@ -76,14 +76,13 @@ export default class SignInScreen extends Component {
         }
         var payload = {
             email: email,
-            password: password,
 
         }
         var formData = JSON.stringify(payload);
 
         this.setState({ loading: true })
 
-        fetch(baseUrl() + 'accounts/authenticate', {
+        fetch(baseUrl() + 'accounts/forgot-password', {
             method: 'POST', headers: {
                 'Content-Type': 'application/json',
                 Accept: 'application/json',
@@ -95,8 +94,14 @@ export default class SignInScreen extends Component {
                 console.warn(statusCode, data)
                 this.setState({ loading: false })
                 if (statusCode === 200) {
-                    setEmail(email)
-                    setToken(data.jwtToken)
+                    Toast.show({
+                        text: 'Token sent to email, redirecting to change page  !',
+                        position: 'top',
+                        type: 'success',
+                        buttonText: 'Dismiss',
+                        duration: 2000
+                    });
+                    this.props.navigation.navigate('ChangePassword')
                     this.setState({ loading: false, done: true })
                 } else if (statusCode === 500) {
                     alert(data.message)
@@ -119,10 +124,10 @@ export default class SignInScreen extends Component {
         const { user } = this.props
         if (this.state.loading) {
             return (
-                <Loader message={'Verifying...'} />
+                <Loader message={'Verifying email...'} />
             );
         }
-
+        
         return (
             <ImageBackground
                 source={require('../../assets/background_dot.png')}
@@ -139,9 +144,12 @@ export default class SignInScreen extends Component {
                                 </View>
                                 <View style={{ marginLeft: 20, marginRight: 20, justifyContent: 'center', alignItems: 'center', flexDirection: 'row', marginBottom: 5, }}>
 
-                                    <Text style={{ color: colors.primary_color, fontFamily: 'Poppins-Bold', fontSize: 16, marginBottom: 2, marginTop: 2 }}>Sign In</Text>
+                                    <Text style={{ color: colors.primary_color, fontFamily: 'Poppins-Bold', fontSize: 16, marginBottom: 2, marginTop: 2 }}>Forgot your password?</Text>
                                 </View>
+                                <View style={{ marginLeft: 20, marginRight: 20, justifyContent: 'center', alignItems: 'center', flexDirection: 'row', }}>
 
+<Text style={{ color: colors.primary_color, fontFamily: 'Poppins-Light', fontSize: 11, marginBottom: 2, marginTop: 2 }}>Provide us with an email to your account for us to process your password change</Text>
+</View>
                                 <View style={styles.textInputContainer}>
                                     <View style={styles.text_icon}>
                                         <Icon
@@ -164,7 +172,7 @@ export default class SignInScreen extends Component {
                                             defaultValue={this.state.email}
                                             style={{ flex: 1, fontSize: 12, color: colors.primary_color, fontFamily: 'Poppins-SemiBold', }}
                                             onChangeText={(text) => this.validate(text)}
-                                            onSubmitEditing={() => this.passwordInput.focus()}
+                                            onSubmitEditing={() => tthis.loginRequest()}
                                         />
                                     </View>
 
@@ -188,78 +196,29 @@ export default class SignInScreen extends Component {
                                     </View>
                                 </View>
 
-                                <View style={styles.textInputContainer}>
-                                    <View style={styles.text_icon}>
-                                        <Icon
-                                            name="lock"
-                                            size={20}
-                                            type='entypo'
-                                            color={colors.primary_color}
-
-                                        />
-                                    </View>
-
-                                    <View style={styles.input}>
-                                        <TextInput
-                                            placeholder="password "
-                                            secureTextEntry
-                                            placeholderTextColor={colors.placeholder_color}
-                                            returnKeyType="next"
-                                            keyboardType='password'
-                                            autoCapitalize="none"
-                                            autoCorrect={false}
-                                            style={{ flex: 1, fontSize: 12, color: colors.primary_color, fontFamily: 'Poppins-SemiBold', }}
-                                            onChangeText={(text) => this.setState({ password: text })}
-                                            onSubmitEditing={() => this.loginRequest()}
-                                        />
-                                    </View>
-
-
-
-                                </View>
-
-
-
-                                <TouchableOpacity style={styles.buttonContainer} onPress={() => this.loginRequest()} >
-                                    <Text style={{ fontFamily: 'Poppins-SemiBold', color: '#fff', fontSize: 14 }}>Log in</Text>
-                                </TouchableOpacity>
-
-                                <View style={{ marginLeft: 20, marginRight: 20, justifyContent: 'center', alignItems: 'center', flexDirection: 'row', marginTop: 8, marginBottom: 10, }}>
-                                <TouchableOpacity onPress={() => this.props.navigation.navigate('ForgetPassword')} style={{ alignItems: 'center', marginLeft:20, }}>
-                                        <Text style={{ color: colors.primary_color, fontFamily: 'Poppins-Bold', fontSize: 13, marginBottom: 7, marginTop: 7 }}> Forgot your password?</Text>
+                               
+                                    <TouchableOpacity style={styles.buttonContainer}  onPress={() => this.loginRequest()} >
+                                        <Text style={{ fontFamily: 'Poppins-SemiBold', color: '#fff', fontSize: 14 }}>Continue</Text>
                                     </TouchableOpacity>
-                                    <View style={{ alignItems: 'center', flex: 1 }}>
-                                       
-                                    </View>
-                                   
-                                </View>
-                                <View style={{ marginLeft: 20, marginRight: 20, justifyContent: 'center', alignItems: 'center', flexDirection: 'row', marginTop: 10, marginBottom: 10, }}>
+                             
+
+                                <View style={{ marginLeft: 20, marginRight: 20, justifyContent: 'center', alignItems: 'center', flexDirection: 'row', marginTop: 20, marginBottom: 10, }}>
                                     <View style={{ alignItems: 'center' }}>
-                                        <Text style={{ color: '#193a4d', fontFamily: 'Poppins-Medium', fontSize: 12, marginBottom: 7, marginTop: 7 }}>Not a member?</Text>
+                                        <Text style={{ color: '#193a4d', fontFamily: 'Poppins-Medium', fontSize: 12, marginBottom: 7, marginTop: 7 }}>Changed your mind?</Text>
                                     </View>
-                                    <TouchableOpacity onPress={() => this.props.navigation.navigate('SignUP')} style={{ alignItems: 'center' }}>
-                                        <Text style={{ color: colors.primary_color, fontFamily: 'Poppins-Bold', fontSize: 13, marginBottom: 7, marginTop: 7 }}>  Join Now!</Text>
+                                    <TouchableOpacity onPress={() => this.props.navigation.navigate('SignIn')} style={{ alignItems: 'center' }}>
+                                        <Text style={{ color: colors.primary_color, fontFamily: 'Poppins-Bold', fontSize: 13, marginBottom: 7, marginTop: 7 }}>  Login Now!</Text>
                                     </TouchableOpacity>
                                 </View>
                             </View>
                         </View>
 
                     </Content>
-                    {this.state.done ? this.success() : null}
                 </Container>
             </ImageBackground>
         );
     }
 
-    success() {
-        return (
-            <Success
-                onPress={() => this.props.navigation.replace('Verify')}
-                message={'User found Proceed to verify'}
-            />
-
-        );
-    }
 
 }
 
@@ -339,7 +298,7 @@ const styles = StyleSheet.create({
         marginLeft: 30,
         marginTop: 13,
         borderRadius: 15,
-        backgroundColor: colors.primary_color,
+        backgroundColor:colors.primary_color,
         alignItems: 'center',
         justifyContent: 'center',
     },

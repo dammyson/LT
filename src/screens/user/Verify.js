@@ -146,7 +146,7 @@ export default class Verify extends Component {
         return (
             <Success
                 title={'Complete Signin'}
-                onPress={() => this.props.navigation.navigate('home')}
+                onPress={() => this.props.navigation.navigate('Home')}
                 message={'User found and verified'}
             />
 

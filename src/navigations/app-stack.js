@@ -10,6 +10,8 @@ import { navigationRef } from '../../rootNavigation'
 import Home from '../screens/user/Home';
 import Verify from '../screens/user/Verify';
 import SignPassword from '../screens/user/SignPassword';
+import ForgotPassword from '../screens/user/ForgotPassword';
+import ChangePassword from '../screens/user/ChangePassword';
 
 
 //console.disableYellowBox = true;
@@ -38,6 +40,8 @@ class AppStack extends Component {
             <Stack.Screen name="Home" component={Home}  />
             <Stack.Screen name="SignPassword" component={SignPassword}  />
             <Stack.Screen name="Verify" component={Verify}  />
+            <Stack.Screen name="ForgetPassword" component={ForgotPassword}  />
+            <Stack.Screen name="ChangePassword" component={ChangePassword}  />
           
           </Stack.Navigator>
         </NavigationContainer>

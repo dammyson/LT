@@ -111,22 +111,17 @@ export default class SignPassword extends Component {
                                     <Text style={{ color: colors.primary_color, fontFamily: 'Poppins-Light', fontSize: 12, marginBottom: 2, marginTop: 2 }}> Check your email and get the token</Text>
                                 </View>
 
-
-                            
-
                                 <View style={styles.textAreaContainer} >
                                     <TextInput
                                         style={styles.textArea}
                                         underlineColorAndroid="transparent"
-                                        placeholder="Family Background"
+                                        placeholder="Token"
                                         placeholderTextColor={colors.placeholder_color}
                                         numberOfLines={5}
                                         multiline={true}
                                         onChangeText={(text) => this.setState({ token: text })}
                                     />
                                 </View>
-
-                              
 
                                 <LinearGradient start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} colors={[colors.primary_color, colors.primary_color]} style={styles.buttonContainer} block iconLeft>
                                     <TouchableOpacity style={{ flex: 1, justifyContent: 'center', alignItems: 'center', }} onPress={() => this.processVerify()}>

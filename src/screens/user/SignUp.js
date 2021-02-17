@@ -330,7 +330,8 @@ export default class SignUp extends Component {
                                             placeholder="Password "
                                             placeholderTextColor={colors.placeholder_color}
                                             returnKeyType="next"
-                                            keyboardType='default'
+                                            keyboardType='password'
+                                            secureTextEntry
                                             autoCapitalize="none"
                                             autoCorrect={false}
                                             style={{ flex: 1, fontSize: 12, color: colors.primary_color, fontFamily: 'Poppins-SemiBold', }}
