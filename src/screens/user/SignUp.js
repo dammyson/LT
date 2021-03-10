@@ -37,6 +37,8 @@ export default class SignUp extends Component {
             image1_display: '',
             image2: '',
             image2_display: '',
+            confirm_password:'',
+            password:'',
             is_valide_mail: false,
             secureTextEntry: false,
             show_camera: false,
@@ -336,6 +338,34 @@ export default class SignUp extends Component {
                                             autoCorrect={false}
                                             style={{ flex: 1, fontSize: 12, color: colors.primary_color, fontFamily: 'Poppins-SemiBold', }}
                                             onChangeText={(text) => this.setState({password: text})}
+                                           
+                                        />
+                                    </View>
+
+                                </View>
+
+                                <View style={styles.textInputContainer}>
+                                    <View style={styles.text_icon}>
+                                        <Icon
+                                            name="key"
+                                            size={23}
+                                            type='font-awesome'
+                                            color={colors.primary_color}
+
+                                        />
+                                    </View>
+
+                                    <View style={styles.input}>
+                                        <TextInput
+                                            placeholder="Confirm Password "
+                                            placeholderTextColor={colors.placeholder_color}
+                                            returnKeyType="next"
+                                            keyboardType='password'
+                                            secureTextEntry
+                                            autoCapitalize="none"
+                                            autoCorrect={false}
+                                            style={{ flex: 1, fontSize: 12, color: colors.primary_color, fontFamily: 'Poppins-SemiBold', }}
+                                            onChangeText={(text) => this.setState({confirm_password: text})}
                                            
                                         />
                                     </View>
